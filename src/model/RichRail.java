@@ -1,43 +1,12 @@
 package model;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import java.awt.GridBagLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import javax.swing.JLabel;
-
-import com.google.gson.Gson;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import java.awt.CardLayout;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-
-import domain.Train;
-import domain.Wagon;
-import net.miginfocom.swing.MigLayout;
-import persistence.Write;
-
-import javax.swing.SwingConstants;
-import javax.swing.JTextField;
-import java.awt.GridBagConstraints;
-import javax.swing.JButton;
-import javax.swing.border.LineBorder;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import javax.swing.border.BevelBorder;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,7 +16,36 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.awt.event.ActionEvent;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonException;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonStructure;
+import javax.json.JsonValue;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.EmptyBorder;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+//import org.json.JSONArray;
+//import org.json.JSONObject;
+import org.json.JSONException;
+
+import com.google.gson.Gson;
+import com.jgoodies.forms.factories.DefaultComponentFactory;
+import com.sun.javafx.scene.paint.GradientUtils.Parser;
+
+import domain.Train;
+import domain.Wagon;
 
 public class RichRail extends JFrame {
 
@@ -67,8 +65,18 @@ public class RichRail extends JFrame {
 	//private Write writer = new Write();
 	private ArrayList<Train> Treinen = new ArrayList();
 	private ArrayList<Wagon> Wagons = new ArrayList();
+	//private JSONArray jarVehicle = new JSONArray();
+	private JSONObject jobTrain = new JSONObject();
+	private JSONObject jobWagon = new JSONObject();
 	
 
+	private JsonObjectBuilder job = Json.createObjectBuilder();
+	private JsonArrayBuilder jab = Json.createArrayBuilder();
+	
+	
+	ArrayList<String> jsonTreinen = new ArrayList();
+	
+	ArrayList<String> jsonWagons = new ArrayList();
 	
 	public RichRail() {
 		setResizable(false);
@@ -127,7 +135,7 @@ public class RichRail extends JFrame {
 					currentNumberOfCommands += 20;
 					try {
 						printCommand(input);
-					} catch (JSONException e) {
+					} catch (JSONException | ParseException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -139,12 +147,12 @@ public class RichRail extends JFrame {
 	}
 	
 	
-	public void printCommand(String command) throws JSONException {
+	public void printCommand(String command) throws JSONException, ParseException {
 		if (command != "") {
 			Graphics g = commandPanel.getGraphics();
 			g.drawString(command, 5, currentNumberOfCommands);
 			String[] splitted = command.split(" ");
-			System.out.println(command);
+			//System.out.println(command);
 
 			
 			if (command.startsWith("new train")) {
@@ -177,7 +185,7 @@ public class RichRail extends JFrame {
 				
 				
 				if (command.startsWith("new wagon") && !command.contains("numseats")) {
-				System.out.println("test");
+				//System.out.println("test");
 				wagonNaam = splitted[2];
 				commandType = splitted[1];
 				
@@ -260,14 +268,15 @@ public class RichRail extends JFrame {
 			}
 			
 			if (command.startsWith("add")) {
-				System.out.println("add functie aangeroepen");
+				//System.out.println("add functie aangeroepen");
 				boolean wagonExists = false;
 				boolean trainExists = false;
 				wagonNaam = splitted[1];
 				treinNaam = splitted[3];
+				System.out.println(treinNaam);
 				
 				for (Wagon wagon : Wagons) {
-					System.out.println(wagon.getNaam());
+					//System.out.println(wagon.getNaam());
 					if (wagon.getNaam().equals(wagonNaam)) {
 						wagonExists = true;
 						System.out.println("wagon bestaat");
@@ -289,7 +298,7 @@ public class RichRail extends JFrame {
 				
 				if (wagonExists && trainExists) {
 					for (Train trein : Treinen) {
-						if (Treinen.contains(trein)) {
+						if (trein.getNaam().equals(treinNaam)) {
 							for (Wagon w : Wagons) {
 								if (w.getNaam().equals(wagonNaam)) {
 									trein.addWagon(w);
@@ -362,48 +371,93 @@ public class RichRail extends JFrame {
 		}
 	}
 	
-	public void newTrain(String naam) throws JSONException {
+	public void newTrain(String naam) throws JSONException, ParseException {
 		Train trein = new Train(naam);
 		Treinen.add(trein);
 		System.out.println("Trein aangemaakt");
 		createJsonTrainArray();
 	}
 	
-	public void newWagon(String naam) throws JSONException {
+	public void newWagon(String naam) throws JSONException, ParseException {
 		Wagon wagon = new Wagon(naam);
 		Wagons.add(wagon);
 		System.out.println("Wagon aangemaakt");
 		createJsonWagonArray();
 	}
 	
-	public void newWagonWithSeats(String naam, int aantStoel) throws JSONException {
+	public void newWagonWithSeats(String naam, int aantStoel) throws JSONException, ParseException {
 		Wagon wagon = new Wagon(naam, aantStoel);
 		Wagons.add(wagon);
 		System.out.println("Wagon aangemaakt met: " + aantStoel + " stoelen");
 		createJsonWagonArray();
 	}
 	
-	public void loadSave() throws IOException {
+	public void loadSave() throws IOException, ParseException {
 		FileReader fr = new FileReader("save.txt");
 		BufferedReader br = new BufferedReader(fr);
 		Scanner sc = new Scanner(fr);
 		Gson json = new Gson();
 		
 		while (sc.hasNext()) {
+			
 			String jsonArray = sc.next();
-			//String jsonTestArray = sc.next();
-			//jsonArray = jsonArray.replace("[", "");
-			//jsonArray = jsonArray.replace("]", "");
+			
+			System.out.println(jsonArray);
+			
+			jsonArray = jsonArray.replaceAll("\\\\", "");
+			//jsonArray = jsonArray.substring(1, jsonArray.length()-1);
+			
+			System.out.println(jsonArray);
+			
 			JSONObject jObj = new JSONObject();
 			JSONArray jArr = new JSONArray();
+			JSONArray arraytesttrain = new JSONArray();
+			JSONArray arraytestwagon = new JSONArray();
 			JSONArray connectedWagons = new JSONArray();
+			JSONParser parser = new JSONParser();
+			
 			boolean heeftWagons = false;
+			
+			jArr = (JSONArray)parser.parse(jsonArray);
+			System.out.println("PASSED LINE 422 " + jArr);
+			
+			
+			
 			try {
-				jArr = new JSONArray(jsonArray);
+				//jArr = new JSONArray();
+				//jArr.add(jsonArray);
 				
-				for (int i = 0; i < jArr.length(); i++) {
-				jObj = jArr.getJSONObject(i);
+				for (Object obj: jArr) {
+					System.out.println("dit is een onderdeel "+obj);
+					jObj = (JSONObject) obj;
+					System.out.println("dit is het jsonobject: " + jObj);
+					System.out.println("dit is een get: " + jObj.get("trains"));
+					arraytesttrain = (JSONArray) jObj.get("trains");
+					arraytestwagon = (JSONArray) jObj.get("wagons");
+					System.out.println("dit is de trein lijst: " + arraytesttrain);
+					System.out.println("dit is de wagon lijst: " + arraytestwagon);
+					for (Object train: arraytesttrain) {
+						jObj = (JSONObject)train;
+						String naam = (String)jObj.get("naam");
+						long stoel = (long)jObj.get("aantalStoelen");
+						String type = (String)jObj.get("type");
+						if (!jObj.get("connectedWagons").equals("[]")) {
+							connectedWagons = (JSONArray)jObj.get("connectedWagons");
+							heeftWagons = true;
+							}
+							
+							if (type.equals("train")) {
+							newTrain(naam);
+							printOutput(naam, type);
+							}
+					}
 				}
+				
+				//for (int i = 0; i < jArr.length(); i++) {
+				//jObj = jArr.getJSONObject(i);
+				//}
+				
+				
 				
 				String naam = (String)jObj.get("naam");
 				int stoel = (int)jObj.get("aantalStoelen");
@@ -424,7 +478,7 @@ public class RichRail extends JFrame {
 				}
 				
 				if (heeftWagons = true) {
-				for (int i = 0; i < connectedWagons.length(); i++) {
+				for (int i = 0; i < connectedWagons.size(); i++) {
 					JSONObject wagon = (JSONObject)connectedWagons.get(i);
 					String name = (String) wagon.get("naam");
 					int aantStoel = (int)wagon.get("aantalStoelen");
@@ -445,43 +499,82 @@ public class RichRail extends JFrame {
 	}
 	
 	
-	public ArrayList createJsonTrainArray() throws JSONException{
+	public ArrayList<String> createJsonTrainArray() throws JSONException, ParseException{
 		Gson json = new Gson();
-		
-		ArrayList<String> jsonTreinen = new ArrayList();
+		JSONParser parser = new JSONParser();
+		JSONObject jsonTrainObj = new JSONObject();
+		JSONArray jTrainArray = new JSONArray();
 		
 		for (Train trein : Treinen) {
 			String treinObject = json.toJson(trein);
-			jsonTreinen.add(treinObject);
+			jsonTrainObj = (JSONObject)parser.parse(treinObject);
+			//System.out.println(jsonObj);
+			jTrainArray.add(jsonTrainObj);
+			//jab.add(jsonObj);
+			//System.out.println(treinObject);
+			//System.out.println("JAB TEST " + jab.build());
+			//jsonTreinen.add(treinObject);
 		}
 		
-	
-		return jsonTreinen;
+		//System.out.println(jsonTreinen);
+
+		//System.out.println(jarVehicle);
+
+		return jTrainArray;
 		
 	}
 	
-	public ArrayList createJsonWagonArray() throws JSONException{
-		Gson json = new Gson();
-		
-		ArrayList<String> jsonWagons = new ArrayList();
+	public ArrayList<String> createJsonWagonArray() throws JSONException, ParseException{
+		Gson json = new Gson();	
+		JSONParser parser = new JSONParser();
+		JSONObject jsonWagonObj = new JSONObject();
+		JSONArray jWagonArray = new JSONArray();
 		
 		for (Wagon wagon : Wagons) {
 			String wagonObject = json.toJson(wagon);
-			jsonWagons.add(wagonObject);
+			jsonWagonObj = (JSONObject)parser.parse(wagonObject);
+			jWagonArray.add(jsonWagonObj);			
+			//jsonWagons.add(wagonObject);
 		}
-		
-		return jsonWagons;
+		//System.out.println(jsonWagons);
+
+		return jWagonArray;
 	}
 	
 	
-	public void writeToFile() throws IOException, JSONException{
+	public void writeToFile() throws IOException, JSONException, ParseException{
 		File file = new File("save.txt");
 		FileWriter fw = new FileWriter(file);
 		PrintWriter pw = new PrintWriter(fw);
-				
-		pw.println(createJsonTrainArray());
-		pw.println(createJsonWagonArray());
-		pw.println();
+		JSONArray finalArray = new JSONArray();
+		
+		System.out.println("toString: " + jsonTreinen.toString());
+		
+		//job.add("trains", jArray);
+		jobTrain.put("trains", createJsonTrainArray());
+		jobWagon.put("wagons", createJsonWagonArray());
+		
+		finalArray.add(jobTrain);
+		finalArray.add(jobWagon);
+		
+		
+		//jobTrain.put("trains", jsonTreinen.toString());
+		//jobWagon.put("wagons", jsonWagons.toString());
+		//jarVehicle.add(jobTrain);
+		//jarVehicle.add(jobWagon);
+		
+		System.out.println();
+		System.out.println();
+		//System.out.println(jobTrain);
+		//System.out.println(jobWagon);
+		//System.out.println(jarVehicle);
+		//System.out.println(job.build());
+		//System.out.println(jsonTreinen);
+		System.out.println(finalArray);
+		//pw.println(createJsonTrainArray());
+		//pw.println(createJsonWagonArray());
+		pw.println(finalArray);
+		//pw.println(jarVehicle);
 		
 		pw.close();
 	}
