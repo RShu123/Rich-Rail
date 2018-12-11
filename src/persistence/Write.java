@@ -7,6 +7,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import org.json.JSONException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import com.google.gson.Gson;
 
@@ -15,45 +19,28 @@ import domain.Wagon;
 import model.RichRail;
 
 public class Write {
-/*	
-	public ArrayList createJsonTrainArray() throws JSONException{
-		Gson json = new Gson();
-		
-		ArrayList<String> jsonTreinen = new ArrayList();
-		
-		for (Train trein : RichRail.Treinen) {
-			String treinObject = json.toJson(trein);
-			jsonTreinen.add(treinObject);
-		}
-		
 	
-		return jsonTreinen;
-		
-	}
-	
-	public ArrayList createJsonWagonArray() throws JSONException{
-		Gson json = new Gson();
-		
-		ArrayList<String> jsonWagons = new ArrayList();
-		
-		for (Wagon wagon : RichRail.Wagons) {
-			String wagonObject = json.toJson(wagon);
-			jsonWagons.add(wagonObject);
-		}
-		
-		return jsonWagons;
-	}
-	
-	public void writeToFile() throws IOException, JSONException{
-		File file = new File("test.txt");
+	private JsonConvert converter = new JsonConvert();
+
+	public void writeToFile() throws IOException, JSONException, ParseException{
+		File file = new File("save.txt");
 		FileWriter fw = new FileWriter(file);
 		PrintWriter pw = new PrintWriter(fw);
+		JSONArray finalArray = new JSONArray();
 				
-		pw.println(createJsonTrainArray());
-		pw.println(createJsonWagonArray());
-		pw.println();
+		RichRail.jobTrain.put("trains", converter.createJsonTrainArray());
+		RichRail.jobWagon.put("wagons", converter.createJsonWagonArray());
+		
+		finalArray.add(RichRail.jobTrain);
+		finalArray.add(RichRail.jobWagon);
+		
+		
+		System.out.println();
+		System.out.println();
+		System.out.println(finalArray);
+		pw.println(finalArray);
 		
 		pw.close();
 	}
-*/
+	
 }

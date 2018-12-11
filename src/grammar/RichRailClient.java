@@ -14,7 +14,7 @@ public class RichRailClient {
         // create a CharStream that reads from standard input
         // CharStream input = CharStreams.fromStream(System.in);
     	
-        CharStream is = CharStreams.fromString("new train saus");
+        CharStream is = CharStreams.fromString("delete train jeroen");
         
         RichRailLexer lexer = new RichRailLexer(is);
 

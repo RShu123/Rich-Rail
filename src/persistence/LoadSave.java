@@ -22,17 +22,16 @@ public class LoadSave {
 	
 	private String treinNaam;
 	private String wagonNaam;
+	private RichRail controller;
 	
 	
 	public void loadEverything() throws IOException, ParseException {
-		System.out.println("test1");
 		FileReader fr = new FileReader("save.txt");
 		BufferedReader br = new BufferedReader(fr);
 		Scanner sc = new Scanner(fr);
 		Gson json = new Gson();
 		
 		while (sc.hasNext()) {
-			System.out.println("test");
 			
 			String jsonArray = sc.next();
 						
@@ -66,8 +65,8 @@ public class LoadSave {
 							treinNaam = (String)jObj.get("naam");
 							String type = (String)jObj.get("type");
 							
-							RichRail.newTrain(treinNaam);
-							RichRail.printOutput(treinNaam, type);
+							controller.newTrain(treinNaam);
+							controller.printOutput(treinNaam, type);
 							
 							
 							if (!jObj.get("connectedWagons").equals("[]")) {
@@ -85,15 +84,15 @@ public class LoadSave {
 									long aantStoel = (long)wagon.get("aantalStoelen");
 									String soort = (String)wagon.get("type");
 									
-									RichRail.newWagonWithSeats(wagonNaam, aantStoel);
-									RichRail.printOutput(wagonNaam,soort);
+									controller.newWagonWithSeats(wagonNaam, aantStoel);
+									controller.printOutput(wagonNaam,soort);
 									
-									for (Train t : RichRail.Treinen) {
+									for (Train t : controller.Treinen) {
 										if (t.getNaam().equals(treinNaam)) {
-											for (Wagon w : RichRail.Wagons) {
+											for (Wagon w : controller.Wagons) {
 												if (w.getNaam().equals(wagonNaam)) {
 													t.addWagon(w);
-													RichRail.printOutput(wagonNaam,"add");
+													controller.printOutput(wagonNaam,"add");
 												}
 											}
 										}
@@ -112,13 +111,13 @@ public class LoadSave {
 							long aantStoel = (long) jObj.get("aantalStoelen");
 							String type = (String) jObj.get("type");
 							
-							for (Wagon w : RichRail.Wagons) {
+							for (Wagon w : controller.Wagons) {
 								if (!w.getNaam().equals(wagonNaam)) {
-									RichRail.newWagonWithSeats("wagonNaam", aantStoel);
-									RichRail.printOutput(wagonNaam, type);
+									controller.newWagonWithSeats("wagonNaam", aantStoel);
+									controller.printOutput(wagonNaam, type);
 							}
 								else {
-									RichRail.printOutput("bestaat", type);
+									controller.printOutput("bestaat", type);
 							}
 						}
 					}
