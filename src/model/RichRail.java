@@ -47,6 +47,7 @@ import com.sun.javafx.scene.paint.GradientUtils.Parser;
 
 import domain.Train;
 import domain.Wagon;
+import persistence.LoadSave;
 
 public class RichRail extends JFrame {
 
@@ -55,17 +56,17 @@ public class RichRail extends JFrame {
 	private JButton executeBtn;
 	private JPanel drawPanel;
 	private JPanel commandPanel;
-	private JPanel outputPanel;
+	private static JPanel outputPanel;
 	private int currentNumberOfCommands;
-	private String treinNaam;
-	private String wagonNaam;
+	private static String treinNaam;
+	private static String wagonNaam;
 	private String commandType;
-	private int currentNumberOfOutputs;
-	private long aantalStoelen;
-	private int aantalTreinStoelen;
+	private static int currentNumberOfOutputs;
+	private static long aantalStoelen;
+	private static int aantalTreinStoelen;
 	//private Write writer = new Write();
-	private ArrayList<Train> Treinen = new ArrayList();
-	private ArrayList<Wagon> Wagons = new ArrayList();
+	public static ArrayList<Train> Treinen = new ArrayList();
+	public static ArrayList<Wagon> Wagons = new ArrayList();
 	//private JSONArray jarVehicle = new JSONArray();
 	private JSONObject jobTrain = new JSONObject();
 	private JSONObject jobWagon = new JSONObject();
@@ -74,10 +75,7 @@ public class RichRail extends JFrame {
 	private JsonObjectBuilder job = Json.createObjectBuilder();
 	private JsonArrayBuilder jab = Json.createArrayBuilder();
 	
-	
-	ArrayList<String> jsonTreinen = new ArrayList();
-	
-	ArrayList<String> jsonWagons = new ArrayList();
+	private LoadSave loader;
 	
 	public RichRail() {
 		setResizable(false);
@@ -323,16 +321,12 @@ public class RichRail extends JFrame {
 			}
 			
 			if  (command.trim().equals("load")) {
-				try {
-					loadSave();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				loadSave();
 			}
 			}
 		}
 	
-	public void printOutput(String output, String type) {
+	public static void printOutput(String output, String type) {
 		Graphics o = outputPanel.getGraphics();
 		currentNumberOfOutputs += 20;
 		o.setColor(Color.WHITE);
@@ -376,7 +370,7 @@ public class RichRail extends JFrame {
 		}
 	}
 	
-	public void newTrain(String naam) throws JSONException, ParseException {
+	public static void newTrain(String naam) throws JSONException, ParseException {
 		Train trein = new Train(naam);
 		Treinen.add(trein);
 		System.out.println("Trein aangemaakt");
@@ -390,13 +384,14 @@ public class RichRail extends JFrame {
 		createJsonWagonArray();
 	}
 	
-	public void newWagonWithSeats(String naam, long aantStoel) throws JSONException, ParseException {
+	public static void newWagonWithSeats(String naam, long aantStoel) throws JSONException, ParseException {
 		Wagon wagon = new Wagon(naam, aantStoel);
 		Wagons.add(wagon);
 		System.out.println("Wagon aangemaakt met: " + aantStoel + " stoelen");
 		createJsonWagonArray();
 	}
 	
+	/*
 	public void loadSave() throws IOException, ParseException {
 		FileReader fr = new FileReader("save.txt");
 		BufferedReader br = new BufferedReader(fr);
@@ -417,8 +412,6 @@ public class RichRail extends JFrame {
 			JSONParser parser = new JSONParser();
 			
 			boolean heeftWagons = false;
-			boolean wagonBestaat = false;
-			boolean treinBestaat = false;
 			
 			jArr = (JSONArray)parser.parse(jsonArray);
 			
@@ -430,41 +423,44 @@ public class RichRail extends JFrame {
 					jObj = (JSONObject) obj;
 					arraytesttrain = (JSONArray) jObj.get("trains");
 					arraytestwagon = (JSONArray) jObj.get("wagons");
-					System.out.println("dit is de trein lijst: " + arraytesttrain);
-					System.out.println("dit is de wagon lijst: " + arraytestwagon);
 					
 					if (arraytesttrain != null) {
-					for (Object train: arraytesttrain) {
-						
-						System.out.println(train);
-						jObj = (JSONObject)train;
-						treinNaam = (String)jObj.get("naam");
-						String type = (String)jObj.get("type");
-						
-						newTrain(treinNaam);
-						printOutput(treinNaam, type);
-						
-						
-						if (!jObj.get("connectedWagons").equals("[]")) {
-							connectedWagons = (JSONArray)jObj.get("connectedWagons");
-							heeftWagons = true;
-							}
+						for (Object train: arraytesttrain) {
+							
+							jObj = (JSONObject)train;
+							
+							treinNaam = (String)jObj.get("naam");
+							String type = (String)jObj.get("type");
+							
+							newTrain(treinNaam);
+							printOutput(treinNaam, type);
 							
 							
-						if (heeftWagons = true) {
-							for (int i = 0; i < connectedWagons.size(); i++) {
-								JSONObject wagon = (JSONObject)connectedWagons.get(i);
-								wagonNaam = (String) wagon.get("naam");
-								long aantStoel = (long)wagon.get("aantalStoelen");
-								String soort = (String)wagon.get("type");
-								newWagonWithSeats(wagonNaam, aantStoel);
-								printOutput(wagonNaam,soort);
-								for (Train t : Treinen) {
-									if (t.getNaam().equals(treinNaam)) {
-										for (Wagon w : Wagons) {
-											if (w.getNaam().equals(wagonNaam)) {
-												t.addWagon(w);
-												printOutput(wagonNaam,"add");
+							if (!jObj.get("connectedWagons").equals("[]")) {
+								connectedWagons = (JSONArray)jObj.get("connectedWagons");
+								heeftWagons = true;
+								}
+							
+							
+							if (heeftWagons = true) {
+								for (int i = 0; i < connectedWagons.size(); i++) {
+									
+									JSONObject wagon = (JSONObject)connectedWagons.get(i);
+									
+									wagonNaam = (String) wagon.get("naam");
+									long aantStoel = (long)wagon.get("aantalStoelen");
+									String soort = (String)wagon.get("type");
+									
+									newWagonWithSeats(wagonNaam, aantStoel);
+									printOutput(wagonNaam,soort);
+									
+									for (Train t : Treinen) {
+										if (t.getNaam().equals(treinNaam)) {
+											for (Wagon w : Wagons) {
+												if (w.getNaam().equals(wagonNaam)) {
+													t.addWagon(w);
+													printOutput(wagonNaam,"add");
+												}
 											}
 										}
 									}
@@ -472,27 +468,28 @@ public class RichRail extends JFrame {
 							}
 						}
 					}
-				}
 					
 					if (arraytestwagon != null) {
-					for (Object wagon : arraytestwagon) {
-						System.out.println(wagon);
-						jObj = (JSONObject)wagon;
-						wagonNaam = (String) jObj.get("naam");
-						long aantStoel = (long) jObj.get("aantalStoelen");
-						String type = (String) jObj.get("type");
-						for (Wagon w : Wagons) {
-							if (!w.getNaam().equals(wagonNaam)) {
-								newWagonWithSeats("wagonNaam", aantStoel);
-								printOutput(wagonNaam, type);
+						
+						for (Object wagon : arraytestwagon) {
+							
+							jObj = (JSONObject)wagon;
+							wagonNaam = (String) jObj.get("naam");
+							long aantStoel = (long) jObj.get("aantalStoelen");
+							String type = (String) jObj.get("type");
+							
+							for (Wagon w : Wagons) {
+								if (!w.getNaam().equals(wagonNaam)) {
+									newWagonWithSeats("wagonNaam", aantStoel);
+									printOutput(wagonNaam, type);
+							}
+								else {
+									printOutput("bestaat", type);
+							}
 						}
-							else {
-								printOutput("bestaat", type);
-								}
 					}
-				}
-			}		
-		}
+				}		
+			}
 
 			} catch (JSONException | ConcurrentModificationException c1) {
 				if(c1 instanceof ConcurrentModificationException) {
@@ -507,8 +504,18 @@ public class RichRail extends JFrame {
 		
 	}
 	
+	*/
 	
-	public ArrayList<String> createJsonTrainArray() throws JSONException, ParseException{
+	public void loadSave() {
+		try {
+			loader.loadSave();
+		} catch (IOException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static ArrayList<String> createJsonTrainArray() throws JSONException, ParseException{
 		Gson json = new Gson();
 		JSONParser parser = new JSONParser();
 		JSONObject jsonTrainObj = new JSONObject();
@@ -524,7 +531,7 @@ public class RichRail extends JFrame {
 		
 	}
 	
-	public ArrayList<String> createJsonWagonArray() throws JSONException, ParseException{
+	public static ArrayList<String> createJsonWagonArray() throws JSONException, ParseException{
 		Gson json = new Gson();	
 		JSONParser parser = new JSONParser();
 		JSONObject jsonWagonObj = new JSONObject();
@@ -545,9 +552,7 @@ public class RichRail extends JFrame {
 		FileWriter fw = new FileWriter(file);
 		PrintWriter pw = new PrintWriter(fw);
 		JSONArray finalArray = new JSONArray();
-		
-		System.out.println("toString: " + jsonTreinen.toString());
-		
+				
 		jobTrain.put("trains", createJsonTrainArray());
 		jobWagon.put("wagons", createJsonWagonArray());
 		
