@@ -3,7 +3,7 @@ package domain;
 public class Wagon {
 
     private String naam;
-    private int aantalStoelen;
+    private long aantalStoelen;
     private String type;
     
     public Wagon(String nm) {
@@ -12,13 +12,13 @@ public class Wagon {
     	type = "wagon";
     }
 
-    public Wagon(String nm, int aantStoel){
+    public Wagon(String nm, long aantStoel){
         naam = nm;
         aantalStoelen = aantStoel;
         type = "wagon";
     }
 
-    public int getStoel(){
+    public long getStoel(){
         return aantalStoelen;
     }
     
