@@ -75,7 +75,7 @@ public class RichRail extends JFrame {
 	private JsonObjectBuilder job = Json.createObjectBuilder();
 	private JsonArrayBuilder jab = Json.createArrayBuilder();
 	
-	private LoadSave loader;
+	private LoadSave loader = new LoadSave();
 	
 	public RichRail() {
 		setResizable(false);
@@ -508,7 +508,7 @@ public class RichRail extends JFrame {
 	
 	public void loadSave() {
 		try {
-			loader.loadSave();
+			loader.loadEverything();
 		} catch (IOException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

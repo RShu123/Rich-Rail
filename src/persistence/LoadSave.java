@@ -24,13 +24,15 @@ public class LoadSave {
 	private String wagonNaam;
 	
 	
-	public void loadSave() throws IOException, ParseException {
+	public void loadEverything() throws IOException, ParseException {
+		System.out.println("test1");
 		FileReader fr = new FileReader("save.txt");
 		BufferedReader br = new BufferedReader(fr);
 		Scanner sc = new Scanner(fr);
 		Gson json = new Gson();
 		
 		while (sc.hasNext()) {
+			System.out.println("test");
 			
 			String jsonArray = sc.next();
 						
