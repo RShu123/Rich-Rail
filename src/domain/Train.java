@@ -17,6 +17,15 @@ public class Train {
         this.connectedWagons = new ArrayList();
     }
     
+    public Train(String nm, String wagonNaam){
+        naam = nm;
+        aantalStoelen = 120;
+        type = "train";
+        this.connectedWagons = new ArrayList();
+        Wagon w1 = new Wagon(wagonNaam);
+        this.connectedWagons.add(w1);
+    }
+    
 
     public void delete(){};
     

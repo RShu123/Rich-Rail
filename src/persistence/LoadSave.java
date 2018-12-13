@@ -22,7 +22,11 @@ public class LoadSave {
 	
 	private String treinNaam;
 	private String wagonNaam;
-	private RichRail controller;
+	
+	private Write writer = new Write();
+	private JsonConvert converter = new JsonConvert();
+	
+	private RichRail controller = new RichRail();
 	
 	
 	public void loadEverything() throws IOException, ParseException {

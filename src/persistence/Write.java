@@ -20,7 +20,10 @@ import model.RichRail;
 
 public class Write {
 	
-	private JsonConvert converter = new JsonConvert();
+	private RichRail controller;
+	
+	private LoadSave load = new LoadSave();
+	private JsonConvert converter = new JsonConvert();	
 
 	public void writeToFile() throws IOException, JSONException, ParseException{
 		File file = new File("save.txt");
@@ -28,11 +31,11 @@ public class Write {
 		PrintWriter pw = new PrintWriter(fw);
 		JSONArray finalArray = new JSONArray();
 				
-		RichRail.jobTrain.put("trains", converter.createJsonTrainArray());
-		RichRail.jobWagon.put("wagons", converter.createJsonWagonArray());
+		controller.jobTrain.put("trains", converter.createJsonTrainArray());
+		controller.jobWagon.put("wagons", converter.createJsonWagonArray());
 		
-		finalArray.add(RichRail.jobTrain);
-		finalArray.add(RichRail.jobWagon);
+		finalArray.add(controller.jobTrain);
+		finalArray.add(controller.jobWagon);
 		
 		
 		System.out.println();

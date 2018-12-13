@@ -58,27 +58,27 @@ public class RichRail extends JFrame {
 	private JButton executeBtn;
 	private JPanel drawPanel;
 	private JPanel commandPanel;
-	private static JPanel outputPanel;
+	private JPanel outputPanel;
 	private int currentNumberOfCommands;
-	private static String treinNaam;
-	private static String wagonNaam;
+	private String treinNaam;
+	private String wagonNaam;
 	private String commandType;
-	private static int currentNumberOfOutputs;
-	private static long aantalStoelen;
-	private static int aantalTreinStoelen;
+	private int currentNumberOfOutputs;
+	private long aantalStoelen;
+	private int aantalTreinStoelen;
 	//private Write writer = new Write();
-	public static ArrayList<Train> Treinen = new ArrayList();
-	public static ArrayList<Wagon> Wagons = new ArrayList();
+	public ArrayList<Train> Treinen = new ArrayList();
+	public ArrayList<Wagon> Wagons = new ArrayList();
 	//private JSONArray jarVehicle = new JSONArray();
-	public static JSONObject jobTrain = new JSONObject();
-	public static JSONObject jobWagon = new JSONObject();
+	public JSONObject jobTrain = new JSONObject();
+	public JSONObject jobWagon = new JSONObject();
 	
 
-	private JsonObjectBuilder job = Json.createObjectBuilder();
-	private JsonArrayBuilder jab = Json.createArrayBuilder();
+	//private JsonObjectBuilder job = Json.createObjectBuilder();
+	//private JsonArrayBuilder jab = Json.createArrayBuilder();
 	
-	private LoadSave loader;
-	private JsonConvert converter;
+	private LoadSave loader = new LoadSave();
+	private JsonConvert converter = new JsonConvert();
 	private Write writer = new Write();
 	
 	public RichRail() {
@@ -409,7 +409,7 @@ public class RichRail extends JFrame {
 	}
 	
 	/*
-	public static ArrayList<String> createJsonTrainArray() throws JSONException, ParseException{
+	public  ArrayList<String> createJsonTrainArray() throws JSONException, ParseException{
 		Gson json = new Gson();
 		JSONParser parser = new JSONParser();
 		JSONObject jsonTrainObj = new JSONObject();
@@ -425,7 +425,7 @@ public class RichRail extends JFrame {
 		
 	}
 	
-	public static ArrayList<String> createJsonWagonArray() throws JSONException, ParseException{
+	public  ArrayList<String> createJsonWagonArray() throws JSONException, ParseException{
 		Gson json = new Gson();	
 		JSONParser parser = new JSONParser();
 		JSONObject jsonWagonObj = new JSONObject();
