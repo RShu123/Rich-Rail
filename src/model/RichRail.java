@@ -33,6 +33,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
+import factory.WagonFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -43,7 +44,7 @@ import org.json.JSONException;
 
 import com.google.gson.Gson;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
-import com.sun.javafx.scene.paint.GradientUtils.Parser;
+//import com.sun.javafx.scene.paint.GradientUtils.Parser;
 
 import domain.Train;
 import domain.Wagon;
@@ -153,6 +154,14 @@ public class RichRail extends JFrame {
 	
 	
 	public void printCommand(String command) throws JSONException, ParseException {
+	    try {
+            WagonFactory wagonFactory = new WagonFactory();
+            Wagon wagon = null;
+            wagon = wagonFactory.makeWagon(command);
+            System.out.println(wagon);
+        }catch (Exception e){
+	        e.printStackTrace();
+        }
 		if (command != "") {
 			Graphics g = commandPanel.getGraphics();
 			g.drawString(command, 5, currentNumberOfCommands);
