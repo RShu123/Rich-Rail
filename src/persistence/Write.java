@@ -16,26 +16,23 @@ import com.google.gson.Gson;
 
 import domain.Train;
 import domain.Wagon;
-import model.RichRail;
+import gui.RichRail;
 
 public class Write {
 	
-	private RichRail controller;
-	
-	private LoadSave load = new LoadSave();
 	private JsonConvert converter = new JsonConvert();	
 
-	public void writeToFile() throws IOException, JSONException, ParseException{
+	public void writeToFile(JSONObject trainObject, JSONObject wagonObject, ArrayList<Train> Treinen, ArrayList<Wagon> Wagons) throws IOException, JSONException, ParseException{
 		File file = new File("save.txt");
 		FileWriter fw = new FileWriter(file);
 		PrintWriter pw = new PrintWriter(fw);
 		JSONArray finalArray = new JSONArray();
 				
-		controller.jobTrain.put("trains", converter.createJsonTrainArray());
-		controller.jobWagon.put("wagons", converter.createJsonWagonArray());
+		trainObject.put("trains", converter.createJsonTrainArray(Treinen));
+		wagonObject.put("wagons", converter.createJsonWagonArray(Wagons));
 		
-		finalArray.add(controller.jobTrain);
-		finalArray.add(controller.jobWagon);
+		finalArray.add(trainObject);
+		finalArray.add(wagonObject);
 		
 		
 		System.out.println();

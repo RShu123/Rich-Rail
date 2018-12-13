@@ -2,6 +2,8 @@ package model;
 
 import java.awt.EventQueue;
 
+import gui.RichRail;
+
 public class Run {
 	
 	public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package model;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -33,6 +33,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
+import factory.LocomotiefFactory;
 import factory.WagonFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -46,6 +47,7 @@ import com.google.gson.Gson;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
 //import com.sun.javafx.scene.paint.GradientUtils.Parser;
 
+import domain.Locomotief;
 import domain.Train;
 import domain.Wagon;
 import persistence.JsonConvert;
@@ -67,6 +69,8 @@ public class RichRail extends JFrame {
 	private int currentNumberOfOutputs;
 	private long aantalStoelen;
 	private int aantalTreinStoelen;
+	private WagonFactory wagonFactory = new WagonFactory();
+    private LocomotiefFactory locomotiefFactory = new LocomotiefFactory();
 	//private Write writer = new Write();
 	public ArrayList<Train> Treinen = new ArrayList();
 	public ArrayList<Wagon> Wagons = new ArrayList();
@@ -155,10 +159,17 @@ public class RichRail extends JFrame {
 	
 	public void printCommand(String command) throws JSONException, ParseException {
 	    try {
-            WagonFactory wagonFactory = new WagonFactory();
+            Locomotief loco = null;
             Wagon wagon = null;
+            loco = locomotiefFactory.makeLocomotief(command);
             wagon = wagonFactory.makeWagon(command);
-            System.out.println(wagon);
+            System.out.println(locomotiefFactory.getList());
+            if (!(loco == null)) {
+            System.out.println(loco.getNaam());
+            }
+            if (!(wagon == null)) {
+            System.out.println(wagon.getNaam());
+            }
         }catch (Exception e){
 	        e.printStackTrace();
         }
@@ -168,7 +179,7 @@ public class RichRail extends JFrame {
 			String[] splitted = command.split(" ");
 			//System.out.println(command);
 
-			
+			/*
 			if (command.startsWith("new train")) {
 				
 				boolean trainExists = false;
@@ -197,7 +208,8 @@ public class RichRail extends JFrame {
 				
 			}
 				
-				
+				*/
+			/*
 				if (command.startsWith("new wagon") && !command.contains("numseats")) {
 				//System.out.println("test");
 				wagonNaam = splitted[2];
@@ -250,6 +262,8 @@ public class RichRail extends JFrame {
 				
 				
 			}
+				
+				*/
 			
 			
 			if (command.startsWith("getnumseats train")) {
@@ -328,7 +342,7 @@ public class RichRail extends JFrame {
 			if (command.trim().equals("save")) {
 				System.out.println(Wagons + "\n" + Treinen);
 				try {
-					writer.writeToFile();
+					writer.writeToFile(jobTrain, jobTrain, Treinen, Wagons);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -410,7 +424,7 @@ public class RichRail extends JFrame {
 	
 	public void loadSave() {
 		try {
-			loader.loadEverything();
+			loader.loadEverything(Wagons, Treinen);
 		} catch (IOException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -452,7 +466,7 @@ public class RichRail extends JFrame {
 	
 	public void createjsonWagonArray() {
 		try {
-			converter.createJsonWagonArray();
+			converter.createJsonWagonArray(Wagons);
 		} catch (JSONException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -461,7 +475,7 @@ public class RichRail extends JFrame {
 	
 	public void createjsonTrainArray() {
 		try {
-			converter.createJsonTrainArray();
+			converter.createJsonTrainArray(Treinen);
 		} catch (JSONException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

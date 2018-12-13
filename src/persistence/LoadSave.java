@@ -3,6 +3,7 @@ package persistence;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Scanner;
 
@@ -16,20 +17,21 @@ import com.google.gson.Gson;
 
 import domain.Train;
 import domain.Wagon;
-import model.RichRail;
+import factory.LocomotiefFactory;
+import factory.WagonFactory;
+import gui.RichRail;
 
 public class LoadSave {
 	
 	private String treinNaam;
 	private String wagonNaam;
 	
-	private Write writer = new Write();
 	private JsonConvert converter = new JsonConvert();
+	private LocomotiefFactory locomotiefFactory = new LocomotiefFactory(); 
+	private WagonFactory wagonFactory = new WagonFactory();
 	
-	private RichRail controller = new RichRail();
 	
-	
-	public void loadEverything() throws IOException, ParseException {
+	public void loadEverything(ArrayList<Wagon> Wagons, ArrayList<Train> Treinen) throws IOException, ParseException {
 		FileReader fr = new FileReader("save.txt");
 		BufferedReader br = new BufferedReader(fr);
 		Scanner sc = new Scanner(fr);
@@ -69,8 +71,8 @@ public class LoadSave {
 							treinNaam = (String)jObj.get("naam");
 							String type = (String)jObj.get("type");
 							
-							controller.newTrain(treinNaam);
-							controller.printOutput(treinNaam, type);
+							locomotiefFactory.makeLocomotief("new train " + treinNaam);
+							//RichRail.printOutput(treinNaam, type);
 							
 							
 							if (!jObj.get("connectedWagons").equals("[]")) {
@@ -88,15 +90,15 @@ public class LoadSave {
 									long aantStoel = (long)wagon.get("aantalStoelen");
 									String soort = (String)wagon.get("type");
 									
-									controller.newWagonWithSeats(wagonNaam, aantStoel);
-									controller.printOutput(wagonNaam,soort);
+									wagonFactory.makeWagon("new wagon " + wagonNaam + " numseats " + aantStoel);
+									//RichRail.printOutput(wagonNaam,soort);
 									
-									for (Train t : controller.Treinen) {
+									for (Train t : Treinen) {
 										if (t.getNaam().equals(treinNaam)) {
-											for (Wagon w : controller.Wagons) {
+											for (Wagon w : Wagons) {
 												if (w.getNaam().equals(wagonNaam)) {
 													t.addWagon(w);
-													controller.printOutput(wagonNaam,"add");
+													//RichRail.printOutput(wagonNaam,"add");
 												}
 											}
 										}
@@ -115,20 +117,20 @@ public class LoadSave {
 							long aantStoel = (long) jObj.get("aantalStoelen");
 							String type = (String) jObj.get("type");
 							
-							for (Wagon w : controller.Wagons) {
+							for (Wagon w : Wagons) {
 								if (!w.getNaam().equals(wagonNaam)) {
-									controller.newWagonWithSeats("wagonNaam", aantStoel);
-									controller.printOutput(wagonNaam, type);
+									wagonFactory.makeWagon("new wagon " + wagonNaam + " numseats " + aantStoel);
+									//RichRail.printOutput(wagonNaam, type);
 							}
 								else {
-									controller.printOutput("bestaat", type);
+									//RichRail.printOutput("bestaat", type);
 							}
 						}
 					}
 				}		
 			}
 
-			} catch (JSONException | ConcurrentModificationException c1) {
+			} catch (ConcurrentModificationException c1) {
 				if(c1 instanceof ConcurrentModificationException) {
 					System.out.println("Modificatie voordat iteratie is beeindigd");
 				}
