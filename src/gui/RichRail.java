@@ -163,9 +163,7 @@ public class RichRail extends JFrame {
             Wagon wagon = null;
             loco = locomotiefFactory.makeLocomotief(command);
             wagon = wagonFactory.makeWagon(command);
-            System.out.println(locomotiefFactory.getList());
             if (!(loco == null)) {
-            System.out.println(loco.getNaam());
             }
             if (!(wagon == null)) {
             System.out.println(wagon.getNaam());
@@ -173,97 +171,12 @@ public class RichRail extends JFrame {
         }catch (Exception e){
 	        e.printStackTrace();
         }
-		if (command != "") {
-			Graphics g = commandPanel.getGraphics();
-			g.drawString(command, 5, currentNumberOfCommands);
-			String[] splitted = command.split(" ");
-			//System.out.println(command);
-
-			/*
-			if (command.startsWith("new train")) {
-				
-				boolean trainExists = false;
-				
-				
-				treinNaam = splitted[2];
-				commandType = splitted[1];
-				
-				if (!Treinen.isEmpty()) {
-					
-					for (Train trein : Treinen) {
-						if (trein.getNaam().equals(treinNaam)) {
-							trainExists = true;
-						}
-					}
-					
-				}
-				
-				if (trainExists) {
-					printOutput("bestaat", "train");
-				}
-				else {
-					newTrain(treinNaam);
-					printOutput(command , commandType);
-				}
-				
-			}
-				
-				*/
-			/*
-				if (command.startsWith("new wagon") && !command.contains("numseats")) {
-				//System.out.println("test");
-				wagonNaam = splitted[2];
-				commandType = splitted[1];
-				
-				
-				boolean wagonExists = false;
-				if(!Wagons.isEmpty()) {
-					
-					for (Wagon wagon: Wagons) {
-						
-						if(wagon.getNaam().equals(wagonNaam)) {
-							wagonExists = true;
-						}	
-				}
-				}
-				
-					if(wagonExists) {
-						printOutput("bestaat", "wagon");
-					}
-					else {
-						newWagon(wagonNaam);
-						printOutput(command, commandType);
-					}
-			}
-			
-				if (command.startsWith("new wagon") && command.contains("numseats")) {
-				wagonNaam = splitted[2];
-				commandType = splitted[1];
-				aantalStoelen = Integer.parseInt(splitted[4]);
-				
-				boolean wagonExists = false;
-				if(!Wagons.isEmpty()) {
-					
-					for (Wagon wagon: Wagons) {
-						
-						if(wagon.getNaam().equals(wagonNaam)) {
-							wagonExists = true;
-						}	
-				}
-			}
-				
-					if(wagonExists) {
-						printOutput("bestaat", "wagon");
-					}
-					else {
-						newWagonWithSeats(wagonNaam,aantalStoelen);
-						printOutput(command, commandType);
-					}
-				
-				
-			}
-				
-				*/
+	    
+		
+	    
+		Graphics g = commandPanel.getGraphics();
+		g.drawString(command, 5, currentNumberOfCommands);
+		String[] splitted = command.split(" ");
 			
 			
 			if (command.startsWith("getnumseats train")) {
