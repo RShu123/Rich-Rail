@@ -18,7 +18,7 @@ public class LocomotiefFactory {
 		}
 	}
 	
-	public Locomotief makeLocomotief(String command) {
+	public Locomotief makeLocomotief(String command)throws ArrayIndexOutOfBoundsException {
 		if (command.startsWith("new")) {
 		String[] splitted = command.split(" ");
 		String naam = splitted[2];

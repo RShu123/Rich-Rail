@@ -9,13 +9,11 @@ public class Wagon {
     public Wagon(String nm) {
     	naam = nm;
     	aantalStoelen = 20;
-    	type = "wagon";
     }
 
     public Wagon(String nm, long aantStoel){
         naam = nm;
         aantalStoelen = aantStoel;
-        type = "wagon";
     }
 
     public long getStoel(){

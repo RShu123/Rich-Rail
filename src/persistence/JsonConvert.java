@@ -29,7 +29,6 @@ public class JsonConvert {
 			jsonTrainObj = (JSONObject)parser.parse(treinObject);
 			jTrainArray.add(jsonTrainObj);
 		}
-		System.out.println(jTrainArray);
 		return jTrainArray;
 		
 	}
@@ -45,7 +44,6 @@ public class JsonConvert {
 			jsonWagonObj = (JSONObject)parser.parse(wagonObject);
 			jWagonArray.add(jsonWagonObj);			
 		}
-		System.out.println(jWagonArray);
 		return jWagonArray;
 	}
 

@@ -79,6 +79,8 @@ public class RichRail extends JFrame {
 	
 	private WagonFactory wagonFactory = new WagonFactory();
     private LocomotiefFactory locomotiefFactory = new LocomotiefFactory();
+    
+    private int wagonPosition;
 
     public ArrayList<Train> Treinen = new ArrayList();
 	public ArrayList<Wagon> Wagons = new ArrayList();
@@ -119,6 +121,7 @@ public class RichRail extends JFrame {
 		outputPanel.setBackground(Color.BLACK);
 		contentPane.add(outputPanel, BorderLayout.EAST);
 		outputPanel.setLayout(new GridLayout(0, 20, 15, 0));
+		
 		
 		commandPanel = new JPanel();
 		commandPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -164,6 +167,8 @@ public class RichRail extends JFrame {
 	
 	
 	public void printCommand(String command) throws JSONException, ParseException {
+		Graphics output = outputPanel.getGraphics();
+		output.setColor(Color.white);
 	    try {
             Locomotief loco = null;
             Wagon wagon = null;
@@ -171,14 +176,17 @@ public class RichRail extends JFrame {
             wagon = wagonFactory.makeWagon(command);
             if (!(loco == null)) {
             	drawTrain(loco.getNaam());
+            	currentNumberOfOutputs+=20;
+            	output.drawString("train " + loco.getNaam() + " created",5, currentNumberOfOutputs);
             }
             if (!(wagon == null)) {
-            	System.out.println(wagon.getNaam());
-            	currentNumberOfWagons++;
-            	drawWagon(wagon.getNaam());
+            	currentNumberOfOutputs+=20;
+            	output.drawString("wagon " + wagon.getNaam() + " created",5, currentNumberOfOutputs);
             }
-        }catch (Exception e){
-	        e.printStackTrace();
+        }catch (ArrayIndexOutOfBoundsException e){
+        	output.setColor(Color.red);
+        	currentNumberOfOutputs += 20;
+        	output.drawString("commando is niet volgens het juiste format", 5, currentNumberOfOutputs);
         }
 	    
 		
@@ -186,10 +194,10 @@ public class RichRail extends JFrame {
 		Graphics g = commandPanel.getGraphics();
 		g.drawString(command, 5, currentNumberOfCommands);
 		String[] splitted = command.split(" ");
+		
 			
 			
 			if (command.startsWith("getnumseats train")) {
-				System.out.println("stap 1");
 				ArrayList<Locomotief> locomotieven = locomotiefFactory.getList();
 				treinNaam = splitted[2];
 				
@@ -198,10 +206,7 @@ public class RichRail extends JFrame {
 						GetNumSeatsLocomotief numberOfSeats = new GetNumSeatsLocomotief(loco);
 						Use gebruik = new Use(numberOfSeats);
 						gebruik.uitvoeren();
-						System.out.println(numberOfSeats);
-						//aantalTreinStoelen = trein.getAantalStoelen();
-						//printOutput(String.valueOf(aantalTreinStoelen), "treinStoel");
-						
+						System.out.println(numberOfSeats);						
 					}
 				}
 			}
@@ -216,15 +221,11 @@ public class RichRail extends JFrame {
 						GetNumSeatsWagon numberOfSeats = new GetNumSeatsWagon(w);
 						Use gebruik = new Use(numberOfSeats);
 						gebruik.uitvoeren();
-						//aantalStoelen = w.getStoel();
-						//printOutput(String.valueOf(aantalStoelen), "wagonStoel");
-						
-						}
 					}
+				}
 			}
 			
 			if (command.startsWith("add")) {
-				//System.out.println("add functie aangeroepen");
 				boolean wagonExists = false;
 				boolean trainExists = false;
 				wagonNaam = splitted[1];
@@ -232,7 +233,6 @@ public class RichRail extends JFrame {
 				System.out.println(treinNaam);
 				
 				for (Wagon wagon : Wagons) {
-					//System.out.println(wagon.getNaam());
 					if (wagon.getNaam().equals(wagonNaam)) {
 						wagonExists = true;
 						System.out.println("wagon bestaat");
@@ -268,11 +268,9 @@ public class RichRail extends JFrame {
 			}
 			
 			if (command.trim().equals("save")) {
-				System.out.println(Wagons + "\n" + Treinen);
 				try {
-					writer.writeToFile(jobTrain, jobTrain, locomotiefFactory.getList(), Wagons);
+					writer.writeToFile(locomotiefFactory.getList(), wagonFactory.getList());
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -358,44 +356,10 @@ public class RichRail extends JFrame {
 		}
 	}
 	
-	/*
-	public  ArrayList<String> createJsonTrainArray() throws JSONException, ParseException{
-		Gson json = new Gson();
-		JSONParser parser = new JSONParser();
-		JSONObject jsonTrainObj = new JSONObject();
-		JSONArray jTrainArray = new JSONArray();
-		
-		for (Train trein : Treinen) {
-			String treinObject = json.toJson(trein);
-			jsonTrainObj = (JSONObject)parser.parse(treinObject);
-			jTrainArray.add(jsonTrainObj);
-		}
-
-		return jTrainArray;
-		
-	}
-	
-	public  ArrayList<String> createJsonWagonArray() throws JSONException, ParseException{
-		Gson json = new Gson();	
-		JSONParser parser = new JSONParser();
-		JSONObject jsonWagonObj = new JSONObject();
-		JSONArray jWagonArray = new JSONArray();
-		
-		for (Wagon wagon : Wagons) {
-			String wagonObject = json.toJson(wagon);
-			jsonWagonObj = (JSONObject)parser.parse(wagonObject);
-			jWagonArray.add(jsonWagonObj);			
-		}
-
-		return jWagonArray;
-	}
-	*/
-	
 	public void createjsonWagonArray() {
 		try {
 			converter.createJsonWagonArray(wagonFactory.getList());
 		} catch (JSONException | ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -404,33 +368,9 @@ public class RichRail extends JFrame {
 		try {
 			converter.createJsonTrainArray(locomotiefFactory.getList());
 		} catch (JSONException | ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	/*
-	
-	public void writeToFile() throws IOException, JSONException, ParseException{
-		File file = new File("save.txt");
-		FileWriter fw = new FileWriter(file);
-		PrintWriter pw = new PrintWriter(fw);
-		JSONArray finalArray = new JSONArray();
-				
-		jobTrain.put("trains", createJsonTrainArray());
-		jobWagon.put("wagons", createJsonWagonArray());
-		
-		finalArray.add(jobTrain);
-		finalArray.add(jobWagon);
-		
-		
-		System.out.println();
-		System.out.println();
-		System.out.println(finalArray);
-		pw.println(finalArray);
-		
-		pw.close();
-	}
-	*/
 
 	public void drawTrain(String train) 
 	{
@@ -448,7 +388,7 @@ public class RichRail extends JFrame {
 			g.drawString(train,40,105+currentTrain*OFFSET);
 	}
 	
-	public void drawWagon(String wagon) 
+	public void drawWagon(String wagon, String train) 
 	{
 		Graphics g = drawPanel.getGraphics();
 		g.setColor(Color.ORANGE);
@@ -457,6 +397,8 @@ public class RichRail extends JFrame {
 		g.fillRoundRect(45+currentNumberOfWagons*TRAINLENGTH, 120+currentTrain*OFFSET, 20, 20, 20, 20);
 		g.fillRoundRect(90+currentNumberOfWagons*TRAINLENGTH, 120+currentTrain*OFFSET, 20, 20, 20, 20);
 		g.drawString(wagon,50+currentNumberOfWagons*TRAINLENGTH,105+currentTrain*OFFSET);
+		wagonPosition = locomotiefFactory.getList().indexOf(train);
+		System.out.println(wagonPosition);
     }
 	
 	

@@ -23,24 +23,21 @@ public class Write {
 	
 	private JsonConvert converter = new JsonConvert();	
 
-	public void writeToFile(JSONObject trainObject, JSONObject wagonObject, ArrayList<Locomotief> Locomotieven, ArrayList<Wagon> Wagons) throws IOException, JSONException, ParseException{
+	public void writeToFile(ArrayList<Locomotief> Locomotieven, ArrayList<Wagon> Wagons) throws IOException, JSONException, ParseException{
 		File file = new File("save.txt");
 		FileWriter fw = new FileWriter(file);
 		PrintWriter pw = new PrintWriter(fw);
 		JSONArray finalArray = new JSONArray();
+		JSONObject trainObject = new JSONObject();
+		JSONObject wagonObject = new JSONObject();
 				
 		trainObject.put("trains", converter.createJsonTrainArray(Locomotieven));
-		System.out.println(trainObject);
 		wagonObject.put("wagons", converter.createJsonWagonArray(Wagons));
-		System.out.println("wagonobject" + wagonObject);
 		
 		finalArray.add(trainObject);
 		finalArray.add(wagonObject);
 		
-		System.out.println(finalArray);
 		
-		System.out.println();
-		System.out.println();
 		System.out.println(finalArray);
 		pw.println(finalArray);
 		
