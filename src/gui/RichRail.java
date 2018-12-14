@@ -47,6 +47,9 @@ import com.google.gson.Gson;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
 //import com.sun.javafx.scene.paint.GradientUtils.Parser;
 
+import commandpattern.GetNumSeatsLocomotief;
+import commandpattern.GetNumSeatsWagon;
+import commandpattern.Use;
 import domain.Locomotief;
 import domain.Train;
 import domain.Wagon;
@@ -69,18 +72,21 @@ public class RichRail extends JFrame {
 	private int currentNumberOfOutputs;
 	private long aantalStoelen;
 	private int aantalTreinStoelen;
+	private int OFFSET = 100;
+	private int TRAINLENGTH = 100;
+	private int currentTrain = -1;
+	private int currentNumberOfWagons;
+	
 	private WagonFactory wagonFactory = new WagonFactory();
     private LocomotiefFactory locomotiefFactory = new LocomotiefFactory();
-	//private Write writer = new Write();
-	public ArrayList<Train> Treinen = new ArrayList();
+
+    public ArrayList<Train> Treinen = new ArrayList();
 	public ArrayList<Wagon> Wagons = new ArrayList();
-	//private JSONArray jarVehicle = new JSONArray();
+	
 	public JSONObject jobTrain = new JSONObject();
 	public JSONObject jobWagon = new JSONObject();
 	
 
-	//private JsonObjectBuilder job = Json.createObjectBuilder();
-	//private JsonArrayBuilder jab = Json.createArrayBuilder();
 	
 	private LoadSave loader = new LoadSave();
 	private JsonConvert converter = new JsonConvert();
@@ -102,8 +108,8 @@ public class RichRail extends JFrame {
 		drawPanel.setBackground(Color.WHITE);
 		contentPane.add(drawPanel, BorderLayout.NORTH);
 		GridBagLayout gbl_drawPanel = new GridBagLayout();
-		gbl_drawPanel.columnWidths = new int[] {20};
-		gbl_drawPanel.rowHeights = new int[] {200};
+		gbl_drawPanel.columnWidths = new int[] {40};
+		gbl_drawPanel.rowHeights = new int[] {400};
 		gbl_drawPanel.columnWeights = new double[]{Double.MIN_VALUE};
 		gbl_drawPanel.rowWeights = new double[]{Double.MIN_VALUE};
 		drawPanel.setLayout(gbl_drawPanel);
@@ -164,9 +170,12 @@ public class RichRail extends JFrame {
             loco = locomotiefFactory.makeLocomotief(command);
             wagon = wagonFactory.makeWagon(command);
             if (!(loco == null)) {
+            	drawTrain(loco.getNaam());
             }
             if (!(wagon == null)) {
-            System.out.println(wagon.getNaam());
+            	System.out.println(wagon.getNaam());
+            	currentNumberOfWagons++;
+            	drawWagon(wagon.getNaam());
             }
         }catch (Exception e){
 	        e.printStackTrace();
@@ -180,32 +189,38 @@ public class RichRail extends JFrame {
 			
 			
 			if (command.startsWith("getnumseats train")) {
+				System.out.println("stap 1");
+				ArrayList<Locomotief> locomotieven = locomotiefFactory.getList();
 				treinNaam = splitted[2];
 				
-				if (!Treinen.isEmpty()) {
-					
-				for (Train trein : Treinen) {
-					if (trein.getNaam().equals(treinNaam)) {
-						aantalTreinStoelen = trein.getAantalStoelen();
-						printOutput(String.valueOf(aantalTreinStoelen), "treinStoel");
+				for (Locomotief loco : locomotieven) {
+					if (loco.getNaam().equals(treinNaam)) {
+						GetNumSeatsLocomotief numberOfSeats = new GetNumSeatsLocomotief(loco);
+						Use gebruik = new Use(numberOfSeats);
+						gebruik.uitvoeren();
+						System.out.println(numberOfSeats);
+						//aantalTreinStoelen = trein.getAantalStoelen();
+						//printOutput(String.valueOf(aantalTreinStoelen), "treinStoel");
 						
-						}
 					}
 				}
 			}
 			
 			if (command.startsWith("getnumseats wagon")) {
+				ArrayList<Wagon> wagons = wagonFactory.getList();
 				wagonNaam = splitted[2];
 				
-				if (!Wagons.isEmpty()) {
-				for (Wagon w : Wagons) {
-					if (w.toString().contains(wagonNaam)) {
-						aantalStoelen = w.getStoel();
-						printOutput(String.valueOf(aantalStoelen), "wagonStoel");
+				
+				for (Wagon w : wagons) {
+					if (w.getNaam().equals(wagonNaam)) {
+						GetNumSeatsWagon numberOfSeats = new GetNumSeatsWagon(w);
+						Use gebruik = new Use(numberOfSeats);
+						gebruik.uitvoeren();
+						//aantalStoelen = w.getStoel();
+						//printOutput(String.valueOf(aantalStoelen), "wagonStoel");
 						
 						}
 					}
-				}
 			}
 			
 			if (command.startsWith("add")) {
@@ -255,7 +270,7 @@ public class RichRail extends JFrame {
 			if (command.trim().equals("save")) {
 				System.out.println(Wagons + "\n" + Treinen);
 				try {
-					writer.writeToFile(jobTrain, jobTrain, Treinen, Wagons);
+					writer.writeToFile(jobTrain, jobTrain, locomotiefFactory.getList(), Wagons);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -266,7 +281,6 @@ public class RichRail extends JFrame {
 				loadSave();
 			}
 			}
-		}
 	
 	public void printOutput(String output, String type) {
 		Graphics o = outputPanel.getGraphics();
@@ -379,7 +393,7 @@ public class RichRail extends JFrame {
 	
 	public void createjsonWagonArray() {
 		try {
-			converter.createJsonWagonArray(Wagons);
+			converter.createJsonWagonArray(wagonFactory.getList());
 		} catch (JSONException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -388,7 +402,7 @@ public class RichRail extends JFrame {
 	
 	public void createjsonTrainArray() {
 		try {
-			converter.createJsonTrainArray(Treinen);
+			converter.createJsonTrainArray(locomotiefFactory.getList());
 		} catch (JSONException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -418,4 +432,32 @@ public class RichRail extends JFrame {
 	}
 	*/
 
+	public void drawTrain(String train) 
+	{
+			currentTrain = locomotiefFactory.getListIndex() - 1;
+			Graphics g = drawPanel.getGraphics();
+			g.setColor(Color.YELLOW);
+			g.fillRect(30,80+currentTrain*OFFSET,80,40);
+			g.fillRect(80,60+currentTrain*OFFSET,30,30);
+			g.setColor(Color.LIGHT_GRAY);
+			g.drawRoundRect(85, 40+currentTrain*OFFSET, 20, 20, 20, 20);
+			g.drawRoundRect(85, currentTrain*OFFSET, 40, 40, 40, 40);
+			g.setColor(Color.BLACK);
+			g.fillRoundRect(35, 120+currentTrain*OFFSET, 20, 20, 20, 20);
+			g.fillRoundRect(80, 120+currentTrain*OFFSET, 20, 20, 20, 20);
+			g.drawString(train,40,105+currentTrain*OFFSET);
+	}
+	
+	public void drawWagon(String wagon) 
+	{
+		Graphics g = drawPanel.getGraphics();
+		g.setColor(Color.ORANGE);
+		g.fillRect(40+currentNumberOfWagons*TRAINLENGTH,80+currentTrain*OFFSET,80,40);
+		g.setColor(Color.BLACK);
+		g.fillRoundRect(45+currentNumberOfWagons*TRAINLENGTH, 120+currentTrain*OFFSET, 20, 20, 20, 20);
+		g.fillRoundRect(90+currentNumberOfWagons*TRAINLENGTH, 120+currentTrain*OFFSET, 20, 20, 20, 20);
+		g.drawString(wagon,50+currentNumberOfWagons*TRAINLENGTH,105+currentTrain*OFFSET);
+    }
+	
+	
 }

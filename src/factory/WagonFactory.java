@@ -45,6 +45,10 @@ public class WagonFactory {
 		return null;
    }
     
+    public ArrayList<Wagon> getList(){
+    	return alleWagons;
+    }
+    
     
 
 

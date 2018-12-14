@@ -38,13 +38,14 @@ public class LocomotiefFactory {
 
 }
 	
-	public String getList(){
-		String s = "";
-		for (Locomotief loco : alleLocomotieven) {
-			s += loco + "\t";
-		}
-		return s;
+	public ArrayList<Locomotief> getList(){
+		return alleLocomotieven;
 			
+	}
+	
+	public int getListIndex() {
+		int index =  alleLocomotieven.size();
+		return index;
 	}
 	
 	

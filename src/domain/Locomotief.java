@@ -11,6 +11,7 @@ public class Locomotief {
     }
 
     public int getAantalStoelen() {
+    	System.out.println("test stoelen");
         return aantalStoelen;
     }
 

@@ -10,6 +10,7 @@ import org.json.simple.parser.ParseException;
 
 import com.google.gson.Gson;
 
+import domain.Locomotief;
 import domain.Train;
 import domain.Wagon;
 import gui.RichRail;
@@ -17,18 +18,18 @@ import gui.RichRail;
 public class JsonConvert {
 	
 		
-	public ArrayList<String> createJsonTrainArray(ArrayList<Train> Treinen) throws JSONException, ParseException{
+	public ArrayList<String> createJsonTrainArray(ArrayList<Locomotief> locomotieven) throws JSONException, ParseException{
 		Gson json = new Gson();
 		JSONParser parser = new JSONParser();
 		JSONObject jsonTrainObj = new JSONObject();
 		JSONArray jTrainArray = new JSONArray();
 		
-		for (Train trein : Treinen) {
-			String treinObject = json.toJson(trein);
+		for (Locomotief loco : locomotieven) {
+			String treinObject = json.toJson(loco);
 			jsonTrainObj = (JSONObject)parser.parse(treinObject);
 			jTrainArray.add(jsonTrainObj);
 		}
-
+		System.out.println(jTrainArray);
 		return jTrainArray;
 		
 	}
@@ -44,7 +45,7 @@ public class JsonConvert {
 			jsonWagonObj = (JSONObject)parser.parse(wagonObject);
 			jWagonArray.add(jsonWagonObj);			
 		}
-
+		System.out.println(jWagonArray);
 		return jWagonArray;
 	}
 
