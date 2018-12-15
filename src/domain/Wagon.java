@@ -3,8 +3,9 @@ package domain;
 public class Wagon {
 
     private String naam;
-    private long aantalStoelen;
-    private String type;
+    private long aantalStoelen = 20;
+
+    public Wagon(){}
     
     public Wagon(String nm) {
     	naam = nm;
@@ -14,6 +15,20 @@ public class Wagon {
     public Wagon(String nm, long aantStoel){
         naam = nm;
         aantalStoelen = aantStoel;
+    }
+
+    public Wagon withName(String nm){
+        this.naam = nm;
+        return this;
+    }
+
+    public Wagon withAantalStoelen(long aantStoel){
+        this.aantalStoelen = aantStoel;
+        return this;
+    }
+
+    public Wagon build(){
+        return new Wagon(naam, aantalStoelen);
     }
 
     public long getStoel(){

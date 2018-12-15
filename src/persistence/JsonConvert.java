@@ -25,7 +25,9 @@ public class JsonConvert {
 		JSONArray jTrainArray = new JSONArray();
 		
 		for (Locomotief loco : locomotieven) {
+			System.out.println(loco);
 			String treinObject = json.toJson(loco);
+			System.out.println(treinObject);
 			jsonTrainObj = (JSONObject)parser.parse(treinObject);
 			jTrainArray.add(jsonTrainObj);
 		}

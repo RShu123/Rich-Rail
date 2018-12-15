@@ -33,6 +33,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
+import commandpattern.*;
 import factory.LocomotiefFactory;
 import factory.WagonFactory;
 import org.json.simple.JSONArray;
@@ -47,9 +48,6 @@ import com.google.gson.Gson;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
 //import com.sun.javafx.scene.paint.GradientUtils.Parser;
 
-import commandpattern.GetNumSeatsLocomotief;
-import commandpattern.GetNumSeatsWagon;
-import commandpattern.Use;
 import domain.Locomotief;
 import domain.Train;
 import domain.Wagon;
@@ -64,12 +62,12 @@ public class RichRail extends JFrame {
 	private JButton executeBtn;
 	private JPanel drawPanel;
 	private JPanel commandPanel;
-	private JPanel outputPanel;
+	public static JPanel outputPanel;
 	private int currentNumberOfCommands;
 	private String treinNaam;
 	private String wagonNaam;
 	private String commandType;
-	private int currentNumberOfOutputs;
+	public static int currentNumberOfOutputs;
 	private long aantalStoelen;
 	private int aantalTreinStoelen;
 	private int OFFSET = 100;
@@ -77,13 +75,13 @@ public class RichRail extends JFrame {
 	private int currentTrain = -1;
 	private int currentNumberOfWagons;
 	
-	private WagonFactory wagonFactory = new WagonFactory();
-    private LocomotiefFactory locomotiefFactory = new LocomotiefFactory();
+	public static WagonFactory wagonFactory = new WagonFactory();
+    public static LocomotiefFactory locomotiefFactory = new LocomotiefFactory();
     
     private int wagonPosition;
 
-    public ArrayList<Train> Treinen = new ArrayList();
-	public ArrayList<Wagon> Wagons = new ArrayList();
+    public ArrayList<Train> Treinen = new ArrayList<>();
+	public ArrayList<Wagon> Wagons = new ArrayList<>();
 	
 	public JSONObject jobTrain = new JSONObject();
 	public JSONObject jobWagon = new JSONObject();
@@ -169,189 +167,122 @@ public class RichRail extends JFrame {
 	public void printCommand(String command) throws JSONException, ParseException {
 		Graphics output = outputPanel.getGraphics();
 		output.setColor(Color.white);
-	    try {
-            Locomotief loco = null;
-            Wagon wagon = null;
-            loco = locomotiefFactory.makeLocomotief(command);
-            wagon = wagonFactory.makeWagon(command);
-            if (!(loco == null)) {
-            	drawTrain(loco.getNaam());
-            	currentNumberOfOutputs+=20;
-            	output.drawString("train " + loco.getNaam() + " created",5, currentNumberOfOutputs);
-            }
-            if (!(wagon == null)) {
-            	currentNumberOfOutputs+=20;
-            	output.drawString("wagon " + wagon.getNaam() + " created",5, currentNumberOfOutputs);
-            }
-        }catch (ArrayIndexOutOfBoundsException e){
-        	output.setColor(Color.red);
-        	currentNumberOfOutputs += 20;
-        	output.drawString("commando is niet volgens het juiste format", 5, currentNumberOfOutputs);
-        }
-	    
-		
-	    
+		try {
+			Locomotief loco = null;
+			Wagon wagon = null;
+			loco = locomotiefFactory.makeLocomotief(command);
+			wagon = wagonFactory.makeWagon(command);
+			if (!(loco == null)) {
+				drawTrain(loco.getNaam());
+				currentNumberOfOutputs += 20;
+				output.drawString("train " + loco.getNaam() + " created", 5, currentNumberOfOutputs);
+			}
+			if (!(wagon == null)) {
+				currentNumberOfOutputs += 20;
+				output.drawString("wagon " + wagon.getNaam() + " created", 5, currentNumberOfOutputs);
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			output.setColor(Color.red);
+			currentNumberOfOutputs += 20;
+			output.drawString("commando is niet volgens het juiste format", 5, currentNumberOfOutputs);
+		}
+
+
 		Graphics g = commandPanel.getGraphics();
 		g.drawString(command, 5, currentNumberOfCommands);
 		String[] splitted = command.split(" ");
-		
-			
-			
-			if (command.startsWith("getnumseats train")) {
-				ArrayList<Locomotief> locomotieven = locomotiefFactory.getList();
-				treinNaam = splitted[2];
-				
-				for (Locomotief loco : locomotieven) {
-					if (loco.getNaam().equals(treinNaam)) {
-						GetNumSeatsLocomotief numberOfSeats = new GetNumSeatsLocomotief(loco);
-						Use gebruik = new Use(numberOfSeats);
-						gebruik.uitvoeren();
-						System.out.println(numberOfSeats);						
-					}
+
+
+		if (command.startsWith("getnumseats train")) {
+			ArrayList<Locomotief> locomotieven = locomotiefFactory.getList();
+			treinNaam = splitted[2];
+
+			for (Locomotief loco : locomotieven) {
+				if (loco.getNaam().equals(treinNaam)) {
+					GetNumSeatsLocomotief numberOfSeats = new GetNumSeatsLocomotief(loco);
+					Use gebruik = new Use(numberOfSeats);
+					gebruik.uitvoeren();
 				}
 			}
-			
-			if (command.startsWith("getnumseats wagon")) {
-				ArrayList<Wagon> wagons = wagonFactory.getList();
-				wagonNaam = splitted[2];
-				
-				
-				for (Wagon w : wagons) {
-					if (w.getNaam().equals(wagonNaam)) {
-						GetNumSeatsWagon numberOfSeats = new GetNumSeatsWagon(w);
-						Use gebruik = new Use(numberOfSeats);
-						gebruik.uitvoeren();
-					}
+		}
+
+		if (command.startsWith("getnumseats wagon")) {
+			ArrayList<Wagon> wagons = wagonFactory.getList();
+			wagonNaam = splitted[2];
+
+
+			for (Wagon w : wagons) {
+				if (w.getNaam().equals(wagonNaam)) {
+					GetNumSeatsWagon numberOfSeats = new GetNumSeatsWagon(w);
+					Use gebruik = new Use(numberOfSeats);
+					gebruik.uitvoeren();
 				}
 			}
-			
-			if (command.startsWith("add")) {
-				boolean wagonExists = false;
-				boolean trainExists = false;
-				wagonNaam = splitted[1];
-				treinNaam = splitted[3];
-				System.out.println(treinNaam);
-				
-				for (Wagon wagon : Wagons) {
-					if (wagon.getNaam().equals(wagonNaam)) {
-						wagonExists = true;
-						System.out.println("wagon bestaat");
-					}
-					else {
-						System.out.println("wagon bestaat niet");
-					}
-				}
-				
-				for (Train train : Treinen) {
-					if (train.getNaam().equals(treinNaam)) {
-						trainExists = true;
-						System.out.println("trein bestaat");
-					}
-					else {
-						System.out.println("trein bestaat niet");
-					}
-				}
-				
-				if (wagonExists && trainExists) {
-					for (Train trein : Treinen) {
-						if (trein.getNaam().equals(treinNaam)) {
-							for (Wagon w : Wagons) {
-								if (w.getNaam().equals(wagonNaam)) {
-									trein.addWagon(w);
-									printOutput(wagonNaam,"add");
-									System.out.println("wagon toegevoegd aan trein");
-								}
-							}
-						}
-					}
+		}
+
+		if (command.startsWith("delete train")) {
+			treinNaam = splitted[2];
+			ArrayList<Locomotief> locomotieven = locomotiefFactory.getList();
+			for (Locomotief loco : locomotieven) {
+				if (loco.getNaam().equals(treinNaam)) {
+					DeleteLocomotief deleteLoco = new DeleteLocomotief(loco);
+					Use gebruik = new Use(deleteLoco);
+					gebruik.uitvoeren();
 				}
 			}
-			
-			if (command.trim().equals("save")) {
-				try {
-					writer.writeToFile(locomotiefFactory.getList(), wagonFactory.getList());
-				} catch (IOException e) {
-					e.printStackTrace();
+		}
+
+		if (command.startsWith("delete wagon")) {
+			wagonNaam = splitted[2];
+			ArrayList<Wagon> wagons = wagonFactory.getList();
+			for (Wagon w : wagons) {
+				if (w.getNaam().equals(wagonNaam)) {
+					DeleteWagon deleteWagon = new DeleteWagon(w);
+					Use gebruik = new Use(deleteWagon);
+					gebruik.uitvoeren();
 				}
 			}
-			
-			if  (command.trim().equals("load")) {
-				loadSave();
-			}
-			}
-	
-	public void printOutput(String output, String type) {
-		Graphics o = outputPanel.getGraphics();
-		currentNumberOfOutputs += 20;
-		o.setColor(Color.WHITE);
-		
-		if (type.equals("treinStoel")) {
-			o.drawString(treinNaam + " has " + aantalTreinStoelen + " seats", 5, currentNumberOfOutputs);
 		}
-		
-		if (type.equals("wagonStoel")) {
-			o.drawString(wagonNaam + " has " + aantalStoelen + " seats", 5, currentNumberOfOutputs);
+
+		if (command.startsWith("add")) {
+			ArrayList<Locomotief> locomotieven = locomotiefFactory.getList();
+			ArrayList<Wagon> wagons = wagonFactory.getList();
+			Locomotief loco = null;
+			Wagon wag = null;
+			wagonNaam = splitted[1];
+			treinNaam = splitted[3];
+			for (Wagon w : wagons) {
+				if (w.getNaam().equals(wagonNaam)) {
+					wag = w;
+				}
+			}
+			for (Locomotief l : locomotieven) {
+				if (l.getNaam().equals(treinNaam)) {
+					loco = l;
+				}
+			}
+			AddWagonToTrain addToTrain = new AddWagonToTrain(loco, wag);
+			Use gebruik = new Use(addToTrain);
+			gebruik.uitvoeren();
 		}
-		
-		if (output != "bestaat" && type.equals("train")) {
-			if (treinNaam != null) {
-			o.drawString("train " + treinNaam + " created", 5, currentNumberOfOutputs);
-			}
-			else {
-				o.drawString("train " + output + " created", 5, currentNumberOfOutputs);
-			}
-		}
-		
-		if (output != "bestaat" && type.equals("wagon")) {
-			if (wagonNaam != null) {
-			o.drawString("wagon " + wagonNaam + " created", 5, currentNumberOfOutputs);
-			}
-			else {
-				o.drawString("wagon " + output + " created", 5, currentNumberOfOutputs);
+
+		if (command.trim().equals("save")) {
+			try {
+				writer.writeToFile(locomotiefFactory.getList(), wagonFactory.getList());
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
-		
-		if (output != "bestaat" && type.equals("add")) {
-			o.drawString("wagon " + output + " added to train", 5, currentNumberOfOutputs);
-		}
-		
-		else if (type.equals("train") && output == "bestaat"){
-			o.drawString("train already exists!", 5, currentNumberOfOutputs);
-		}
-		
-		else if (type.equals("wagon") && output == "bestaat") {
-			o.drawString("wagon already exists", 5, currentNumberOfOutputs);
+
+		if (command.trim().equals("load")) {
+			loadSave();
 		}
 	}
-	
-	public void newTrain(String naam) throws JSONException, ParseException {
-		Train trein = new Train(naam);
-		Treinen.add(trein);
-		System.out.println("Trein aangemaakt");
-		createjsonTrainArray();
-	}
-	
-	public void newWagon(String naam) throws JSONException, ParseException {
-		Wagon wagon = new Wagon(naam);
-		Wagons.add(wagon);
-		System.out.println("Wagon aangemaakt");
-		createjsonWagonArray();
-	}
-	
-	public void newWagonWithSeats(String naam, long aantStoel) throws JSONException, ParseException {
-		Wagon wagon = new Wagon(naam, aantStoel);
-		Wagons.add(wagon);
-		System.out.println("Wagon aangemaakt met: " + aantStoel + " stoelen");
-		createjsonWagonArray();
-	}
-	
-	
 	
 	public void loadSave() {
 		try {
-			loader.loadEverything(Wagons, Treinen);
+			loader.loadEverything(wagonFactory.getList(), locomotiefFactory.getList());
 		} catch (IOException | ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -7,7 +7,6 @@ import domain.Locomotief;
 public class LocomotiefFactory {
 
 	private ArrayList<Locomotief> alleLocomotieven = new ArrayList<>();
-	private Locomotief locomotyfus = new Locomotief("test");
 	boolean locomotiefExists = false;
 	
 	public void checkIfExists(String naam) {
@@ -44,9 +43,13 @@ public class LocomotiefFactory {
 	}
 	
 	public int getListIndex() {
-		int index =  alleLocomotieven.size();
-		return index;
-	}
+        int index = alleLocomotieven.size();
+        return index;
+    }
+
+    public void deleteLocomotief(Locomotief loco){
+	    this.alleLocomotieven.remove(loco);
+    }
 	
 	
 }

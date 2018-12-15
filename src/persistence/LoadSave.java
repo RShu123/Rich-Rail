@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Scanner;
 
+import domain.Locomotief;
 import org.json.JSONException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -31,7 +32,7 @@ public class LoadSave {
 	private WagonFactory wagonFactory = new WagonFactory();
 	
 	
-	public void loadEverything(ArrayList<Wagon> Wagons, ArrayList<Train> Treinen) throws IOException, ParseException {
+	public void loadEverything(ArrayList<Wagon> Wagons, ArrayList<Locomotief> Locomotieven) throws IOException, ParseException {
 		FileReader fr = new FileReader("save.txt");
 		BufferedReader br = new BufferedReader(fr);
 		Scanner sc = new Scanner(fr);
@@ -50,7 +51,7 @@ public class LoadSave {
 			JSONArray connectedWagons = new JSONArray();
 			JSONParser parser = new JSONParser();
 			
-			boolean heeftWagons = false;
+			boolean heeftGeenWagons = false;
 			
 			jArr = (JSONArray)parser.parse(jsonArray);
 			
@@ -69,36 +70,34 @@ public class LoadSave {
 							jObj = (JSONObject)train;
 							
 							treinNaam = (String)jObj.get("naam");
-							String type = (String)jObj.get("type");
 							
 							locomotiefFactory.makeLocomotief("new train " + treinNaam);
+							System.out.println("locomotief aangemaakt");
 							//RichRail.printOutput(treinNaam, type);
 							
 							
 							if (!jObj.get("connectedWagons").equals("[]")) {
 								connectedWagons = (JSONArray)jObj.get("connectedWagons");
-								heeftWagons = true;
+								heeftGeenWagons = true;
 								}
 							
 							
-							if (heeftWagons = true) {
+							if (heeftGeenWagons) {
 								for (int i = 0; i < connectedWagons.size(); i++) {
 									
 									JSONObject wagon = (JSONObject)connectedWagons.get(i);
 									
 									wagonNaam = (String) wagon.get("naam");
 									long aantStoel = (long)wagon.get("aantalStoelen");
-									String soort = (String)wagon.get("type");
 									
 									wagonFactory.makeWagon("new wagon " + wagonNaam + " numseats " + aantStoel);
-									//RichRail.printOutput(wagonNaam,soort);
+									System.out.println("aangemaakt door wagonfactory");
 									
-									for (Train t : Treinen) {
-										if (t.getNaam().equals(treinNaam)) {
+									for (Locomotief loco : Locomotieven) {
+										if (loco.getNaam().equals(treinNaam)) {
 											for (Wagon w : Wagons) {
 												if (w.getNaam().equals(wagonNaam)) {
-													t.addWagon(w);
-													//RichRail.printOutput(wagonNaam,"add");
+													loco.addWagon(w);
 												}
 											}
 										}
@@ -115,20 +114,11 @@ public class LoadSave {
 							jObj = (JSONObject)wagon;
 							wagonNaam = (String) jObj.get("naam");
 							long aantStoel = (long) jObj.get("aantalStoelen");
-							String type = (String) jObj.get("type");
-							
-							for (Wagon w : Wagons) {
-								if (!w.getNaam().equals(wagonNaam)) {
-									wagonFactory.makeWagon("new wagon " + wagonNaam + " numseats " + aantStoel);
-									//RichRail.printOutput(wagonNaam, type);
-							}
-								else {
-									//RichRail.printOutput("bestaat", type);
+
+							wagonFactory.makeWagon("new wagon " + wagonNaam + " numseats " + aantStoel);
 							}
 						}
 					}
-				}		
-			}
 
 			} catch (ConcurrentModificationException c1) {
 				if(c1 instanceof ConcurrentModificationException) {
